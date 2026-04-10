@@ -39,6 +39,33 @@ for i, (name, price) in enumerate(menu.items()):
             st.session_state.cart[name] = st.session_state.cart.get(name, 0) + 1
 
 # ----------------------
+# セットメニュー（手動選択）
+# ----------------------
+st.subheader("セットメニュー")
+
+set_items = {
+    "3点セット": ["ビーフ", "メンチ", "牛すじ"],
+    "4点セット": ["ビーフ", "メンチ", "牛すじ", "明太クリーミー"],
+    "お得セット": ["ビーフ", "ビーフ", "ビーフ", "メンチ", "メンチ"],
+    "お土産セット": ["ビーフ", "和風だし", "常総牛"]
+}
+
+set_prices = {
+    "3点セット": 900,
+    "4点セット": 1200,
+    "お得セット": 1400,
+    "お土産セット": 1000
+}
+
+cols = st.columns(3)
+
+for i, set_name in enumerate(set_items.keys()):
+    with cols[i % 3]:
+        if st.button(f"{set_name} {set_prices[set_name]}円", key=f"set_{set_name}", use_container_width=True):
+            for item in set_items[set_name]:
+                st.session_state.cart[item] = st.session_state.cart.get(item, 0) + 1
+
+# ----------------------
 # セット自動判定
 # ----------------------
 cart = st.session_state.cart.copy()
