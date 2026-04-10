@@ -102,7 +102,6 @@ set_prices = {
     "お得セット": 1400,
 }
     
-}
 
 for s in sets_result:
     total += set_prices[s]
