@@ -1,9 +1,38 @@
 import streamlit as st
 from collections import Counter
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="おつりシミュレーション", layout="wide")
 
-st.title("おつりシミュレーション")
+# ----------------------
+# タイトル（スマホ対応）
+# ----------------------
+st.markdown(
+    "<h3 style='margin-bottom:10px;'>おつりシミュレーション</h3>",
+    unsafe_allow_html=True
+)
+
+# ----------------------
+# 画面幅取得（スマホ判定）
+# ----------------------
+components.html(
+    """
+    <script>
+    const width = window.innerWidth;
+    window.parent.postMessage({width: width}, "*");
+    </script>
+    """,
+    height=0,
+)
+
+if "width" not in st.session_state:
+    st.session_state.width = 1000
+
+# 列数切り替え
+if st.session_state.width < 768:
+    cols = st.columns(1)
+else:
+    cols = st.columns(3)
 
 # ----------------------
 # 商品データ
@@ -27,19 +56,17 @@ if "cart" not in st.session_state:
     st.session_state.cart = {}
 
 # ----------------------
-# 商品選択（3列）
+# 商品選択
 # ----------------------
 st.subheader("商品を選択")
 
-cols = st.columns(3)
-
 for i, (name, price) in enumerate(menu.items()):
-    with cols[i % 3]:
+    with cols[i % len(cols)]:
         if st.button(f"{name} {price}円", key=name, use_container_width=True):
             st.session_state.cart[name] = st.session_state.cart.get(name, 0) + 1
 
 # ----------------------
-# セットメニュー（手動選択）
+# セットメニュー
 # ----------------------
 st.subheader("セットメニュー")
 
@@ -57,10 +84,8 @@ set_prices = {
     "お土産セット": 1000
 }
 
-cols = st.columns(3)
-
 for i, set_name in enumerate(set_items.keys()):
-    with cols[i % 3]:
+    with cols[i % len(cols)]:
         if st.button(f"{set_name} {set_prices[set_name]}円", key=f"set_{set_name}", use_container_width=True):
             for item in set_items[set_name]:
                 st.session_state.cart[item] = st.session_state.cart.get(item, 0) + 1
@@ -71,7 +96,7 @@ for i, set_name in enumerate(set_items.keys()):
 cart = st.session_state.cart.copy()
 sets_result = []
 
-# お得セット（ビーフ3＋メンチ2）
+# お得セット
 while cart.get("ビーフ", 0) >= 3 and cart.get("メンチ", 0) >= 2:
     cart["ビーフ"] -= 3
     cart["メンチ"] -= 2
@@ -108,17 +133,16 @@ st.subheader("注文内容")
 
 original = Counter(st.session_state.cart)
 
-# ① 元の注文
+# 元注文
 if any(original.values()):
     st.markdown("### 🧾 注文（入力）")
     for name, count in original.items():
         if count > 0:
             st.write(f"{name} ×{count}")
 
-# ② セット
+# セット
 if sets_result:
     st.markdown("### 🎁 セット")
-
     count_sets = Counter(sets_result)
 
     for name, count in count_sets.items():
@@ -129,7 +153,7 @@ if sets_result:
         elif name == "3点セット":
             st.write(f"{name} ×{count}（ビーフ・メンチ・牛すじ）")
 
-# ③ 単品（残り）
+# 単品
 if any(cart.values()):
     st.markdown("### 🛒 単品")
     for name, count in cart.items():
@@ -137,22 +161,13 @@ if any(cart.values()):
             st.write(f"{name} ×{count}")
 
 # ----------------------
-# 合計金額
+# 合計
 # ----------------------
 total = 0
-
-# セット価格
-set_prices = {
-    "3点セット": 900,
-    "4点セット": 1200,
-    "お得セット": 1400,
-}
-    
 
 for s in sets_result:
     total += set_prices[s]
 
-# 単品
 for name, count in cart.items():
     total += menu[name] * count
 
