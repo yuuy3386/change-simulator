@@ -60,11 +60,12 @@ if "cart" not in st.session_state:
 # ----------------------
 st.subheader("商品を選択")
 
+product_cols = st.columns(3)
+
 for i, (name, price) in enumerate(menu.items()):
-    with cols[i % len(cols)]:
+    with product_cols[i % len(product_cols)]:
         if st.button(f"{name} {price}円", key=name, use_container_width=True):
             st.session_state.cart[name] = st.session_state.cart.get(name, 0) + 1
-
 # ----------------------
 # セットメニュー
 # ----------------------
@@ -84,12 +85,13 @@ set_prices = {
     "お土産セット": 1000
 }
 
+set_cols = st.columns(3)
+
 for i, set_name in enumerate(set_items.keys()):
-    with cols[i % len(cols)]:
+    with set_cols[i % len(set_cols)]:
         if st.button(f"{set_name} {set_prices[set_name]}円", key=f"set_{set_name}", use_container_width=True):
             for item in set_items[set_name]:
                 st.session_state.cart[item] = st.session_state.cart.get(item, 0) + 1
-
 # ----------------------
 # セット自動判定
 # ----------------------
