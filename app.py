@@ -102,20 +102,39 @@ while (
     sets_result.append("3点セット")
 
 # ----------------------
-# 表示
+# 表示（見やすい版）
 # ----------------------
 st.subheader("注文内容")
 
-# セット表示
-if sets_result:
-    count_sets = Counter(sets_result)
-    for name, count in count_sets.items():
-        st.write(f"{name} ×{count}")
+original = Counter(st.session_state.cart)
 
-# 単品表示
-for name, count in cart.items():
-    if count > 0:
-        st.write(f"{name} ×{count}")
+# ① 元の注文
+if any(original.values()):
+    st.markdown("### 🧾 注文（入力）")
+    for name, count in original.items():
+        if count > 0:
+            st.write(f"{name} ×{count}")
+
+# ② セット
+if sets_result:
+    st.markdown("### 🎁 セット")
+
+    count_sets = Counter(sets_result)
+
+    for name, count in count_sets.items():
+        if name == "お得セット":
+            st.write(f"{name} ×{count}（ビーフ×3・メンチ×2）")
+        elif name == "4点セット":
+            st.write(f"{name} ×{count}（ビーフ・メンチ・牛すじ・明太）")
+        elif name == "3点セット":
+            st.write(f"{name} ×{count}（ビーフ・メンチ・牛すじ）")
+
+# ③ 単品（残り）
+if any(cart.values()):
+    st.markdown("### 🛒 単品")
+    for name, count in cart.items():
+        if count > 0:
+            st.write(f"{name} ×{count}")
 
 # ----------------------
 # 合計金額
